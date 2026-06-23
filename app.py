@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from datetime import date
 from flask_cors import CORS
-from flask_mail import Mail, Message
 import mysql.connector
 import json
 import base64
@@ -20,28 +19,6 @@ db_config = {
     "database": os.environ.get("MYSQLDATABASE", "dentapp"),
     "port": int(os.environ.get("MYSQLPORT", 3306)),
 }
-
-app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
-app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
-app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME", "dentappsys@gmail.com")
-app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD", "nasi nsll jpiw lqng")
-app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_USERNAME", "dentappsys@gmail.com")
-mail = Mail(app)
-
-
-def sendMailnotif(sub, aid, body):
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(
-        "select email from user where id in (select user_id from appointment_backup where aid = %s)",
-        (aid,),
-    )
-    user = cursor.fetchone()
-    cursor.close()
-    sendto = user["email"]
-    msg = Message(subject=sub, recipients=[sendto], body=body)
-    mail.send(msg)
 
 
 @app.route("/getSignatures", methods=["GET"])
@@ -335,17 +312,6 @@ def finishAppointment():
     cursor.execute(newQuery, (id, message, reason, admin_id, user_id))
     conn.commit()
     notif = cursor.lastrowid
-    body = f"""Hello,
-
-    Your appointment has been updated.
-
-    Reason:
-    {reason}
-
-    Thank you,
-    Clinic Admin
-        """
-    sendMailnotif(message, id, body)
 
     cursor.close()
     conn.close()
@@ -799,23 +765,6 @@ def rescheduleRequest():
             cursor.execute("SELECT sentTo FROM notification WHERE id = %s", (notif,))
             result = cursor.fetchone()
 
-            body = f"""Hello,
-
-            Your appointment has been updated.
-
-            Reason:
-            {appointment["reason"]}
-
-            Thank you,
-            Clinic Admin
-            """
-
-            message = "Reschedule Update"
-
-            sendMailnotif(message, result["sentTo"], body)
-
-            print(result["sentTo"])
-
         conn.commit()
     except Exception as e:
         conn.rollback()
@@ -875,20 +824,6 @@ def approveAppointment():
             """,
                 (aid, "Appointment Approved", user_id),
             )
-
-        mailSubject = "Appointment Approval Notice"
-        mailBody = f"""Dear Valued Client,
-
-        Your appointment has been approved and confirmed for the scheduled time. Please ensure that you arrive promptly at the exact time indicated.
-
-        We kindly ask that you avoid being late to help us maintain an efficient schedule for all clients.
-
-        Thank you, and we look forward to serving you.
-
-        Sincerely,
-        DentApp
-            """
-        sendMailnotif(mailSubject, aid, mailBody)
         conn.commit()
 
     except Exception as e:
