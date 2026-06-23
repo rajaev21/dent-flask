@@ -14,10 +14,11 @@ app = Flask(__name__)
 CORS(app)
 today = date.today()
 db_config = {
-    "host": "localhost",
-    "user": "root",
-    "password": "",
-    "database": "dentapp",
+    "host": os.environ.get("MYSQLHOST", "localhost"),
+    "user": os.environ.get("MYSQLUSER", "root"),
+    "password": os.environ.get("MYSQLPASSWORD", ""),
+    "database": os.environ.get("MYSQLDATABASE", "dentapp"),
+    "port": int(os.environ.get("MYSQLPORT", 3306)),
 }
 
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
