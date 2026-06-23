@@ -21,12 +21,12 @@ db_config = {
     "port": int(os.environ.get("MYSQLPORT", 3306)),
 }
 
-app.config["MAIL_SERVER"] = "smtp.gmail.com"
-app.config["MAIL_PORT"] = 587
+app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
+app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
 app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = "dentappsys@gmail.com"
-app.config["MAIL_PASSWORD"] = "nasi nsll jpiw lqng"
-app.config["MAIL_DEFAULT_SENDER"] = "dentappsys@gmail.com"
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME", "dentappsys@gmail.com")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD", "nasi nsll jpiw lqng")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_USERNAME", "dentappsys@gmail.com")
 mail = Mail(app)
 
 
