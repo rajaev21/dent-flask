@@ -8,7 +8,6 @@ import os
 import time
 import random
 
-
 app = Flask(__name__)
 CORS(app)
 today = date.today()
@@ -71,6 +70,7 @@ def setSignature():
     conn.close()
 
     return jsonify({"success": True, "file_path": file_path})
+
 
 @app.route("/setConsentSignature", methods=["POST"])
 def setConsentSignature():
@@ -888,8 +888,7 @@ def getAppointment():
         """
         cursor.execute(query, (user_id,))
     else:
-        cursor.execute(
-            """select
+        cursor.execute("""select
         ab.aid as id,
         concat('Appointments ', ab.aid) AS groupId,
         ast.status_name AS title,
@@ -897,8 +896,7 @@ def getAppointment():
         CONCAT(ab.date, 'T', ab.appointment_end) AS end
         FROM appointment_backup ab
         right join appointment_status ast ON ast.id = ab.status
-        """
-        )
+        """)
 
     result = cursor.fetchall()
     cursor.close()
@@ -1124,13 +1122,7 @@ def login():
 
     number = "123456789"
     otp = "".join(random.choice(number) for _ in range(6))
-
     result[0]["otp"] = otp
-    sub = "OTP"
-    sendto = result[0]["email"]
-    body = f"OTP: {otp}"
-    msg = Message(subject=sub, recipients=[sendto], body=body)
-    mail.send(msg)
 
     cursor.close()
     conn.close()
