@@ -206,19 +206,19 @@ def getCustomerProfile():
     cursor = conn.cursor(dictionary=True)
     user_id = request.args.get("id")
     query = """
-        SELECT 
-        cd.*, 
-        u.username, 
-        GROUP_CONCAT(DISTINCT m.meds) AS medications,
-        GROUP_CONCAT(DISTINCT t.taken) AS taken_list
+            SELECT 
+            cd.*, 
+            u.username, 
+            GROUP_CONCAT(DISTINCT m.meds) AS medications,
+            GROUP_CONCAT(DISTINCT t.taken) AS taken_list
 
-        FROM customer_detail cd
-        INNER JOIN user u ON u.id = cd.user
-        LEFT JOIN medication m ON m.user = cd.user
-        LEFT JOIN taken t ON t.user = cd.user
-        WHERE cd.user = %s
-        GROUP BY cd.user
-        """
+            FROM customer_detail cd
+            INNER JOIN user u ON u.id = cd.user
+            LEFT JOIN medication m ON m.user = cd.user
+            LEFT JOIN taken t ON t.user = cd.user
+            WHERE cd.user = %s
+            GROUP BY cd.id, cd.user, u.username
+            """
     cursor.execute(query, (user_id,))
     result = cursor.fetchall()
     cursor.close()
